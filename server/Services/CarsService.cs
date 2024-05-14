@@ -1,6 +1,4 @@
 
-
-
 namespace csharp_gregslist_api.Services;
 
 public class CarsService
@@ -52,19 +50,24 @@ public class CarsService
 
   internal Car UpdateCar(int carId, string userId, Car carData)
   {
-    Car carToUpdate = GetCarById(carId);
 
+    Car carToUpdate = GetCarById(carId);  // Get original car out of database
+
+    // Check ownership
     if (carToUpdate.CreatorId != userId)
     {
       throw new Exception("You are not the creator of this car, bud");
     }
 
+    // Changes data on car from database depending on if a value is supplied in the request body. If no value is supplied in the request body (null) it defaults to what it had stored originally
     carToUpdate.Make = carData.Make ?? carToUpdate.Make;
     carToUpdate.Model = carData.Model ?? carToUpdate.Model;
 
+    // NOTE must make these properties nullable in the class model in order for this to work
     carToUpdate.Price = carData.Price ?? carToUpdate.Price;
     carToUpdate.HasCleanTitle = carData.HasCleanTitle ?? carToUpdate.HasCleanTitle;
 
+    // update data in database
     Car updatedCar = _repository.UpdateCar(carToUpdate);
 
     return updatedCar;

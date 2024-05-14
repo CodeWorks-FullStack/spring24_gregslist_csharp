@@ -1,3 +1,4 @@
+
 namespace csharp_gregslist_api.Controllers;
 
 [ApiController]
@@ -14,8 +15,9 @@ public class CarsController : ControllerBase
     _auth0Provider = auth0Provider;
   }
 
-  [Authorize]
+  [Authorize] // Must have a bearer token in order to access endpoint
   [HttpPost]
+  // async allows us to use await keyword, any method that has an await contained within it must have Task included in return type
   public async Task<ActionResult<Car>> CreateCar([FromBody] Car carData)
   {
     try
@@ -25,6 +27,7 @@ public class CarsController : ControllerBase
       // HttpContext request and response wrapped into one object
       Account userInfo = await _auth0Provider.GetUserInfoAsync<Account>(HttpContext);
 
+      // assigning ownership
       carData.CreatorId = userInfo.Id;
 
       Car car = _carsService.CreateCar(carData);

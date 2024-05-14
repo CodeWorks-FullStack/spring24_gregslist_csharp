@@ -19,6 +19,6 @@ public class Car
   public string Color { get; set; }
   public int Mileage { get; set; }
   public string CreatorId { get; set; }
-
+  // Allows to store creator object on Car object
   public Account Creator { get; set; }
 }

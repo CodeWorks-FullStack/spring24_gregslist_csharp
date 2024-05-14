@@ -1,8 +1,4 @@
 
-
-
-
-
 namespace csharp_gregslist_api.Repositories;
 
 public class CarsRepository
@@ -45,9 +41,18 @@ public class CarsRepository
       @CreatorId
     );
     
-    SELECT * FROM cars WHERE id = LAST_INSERT_ID();";
+    SELECT 
+    cars.*,
+    accounts.*
+    FROM cars
+    JOIN accounts ON accounts.id = cars.creatorId
+    WHERE cars.id = LAST_INSERT_ID();";
 
-    Car car = _db.Query<Car>(sql, carData).FirstOrDefault();
+    Car car = _db.Query<Car, Account, Car>(sql, (car, account) =>
+    {
+      car.Creator = account;
+      return car;
+    }, carData).FirstOrDefault();
 
     return car;
   }
@@ -87,8 +92,13 @@ public class CarsRepository
     FROM cars
     JOIN accounts ON accounts.id = cars.creatorId;";
 
+    //                          | First data type coming on each row 
+    //                          |       | Second data type coming in on each row
+    //                          |       |     | return type for mapping function
+    //                          V       V     V
     List<Car> cars = _db.Query<Car, Account, Car>(sql, (car, account) =>
     {
+      // Assigning creator object to car object. Dapper will pass each data type coming in on each row to this mapping function
       car.Creator = account;
       return car;
     }).ToList();
